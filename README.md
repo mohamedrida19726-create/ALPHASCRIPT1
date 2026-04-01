@@ -1,7 +1,7 @@
 -- ===== Security: Whitelist System =====
 local AllowedUsers = {
     ["GhostJelly39"] = "Owner",      -- Smytak (Admin)
-    ["Moon_Dragon1337"] = "User",    -- Sahbak (Member)
+    ["ACHRAF_4854"] = "User",    -- Sahbak (Member)
 }
 
 local Player = game:GetService("Players").LocalPlayer
