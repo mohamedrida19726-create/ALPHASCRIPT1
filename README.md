@@ -1,1 +1,283 @@
-# ALPHASCRIPT1
+-- ===== Security: Whitelist System =====
+local AllowedUsers = {
+    ["GhostJelly39"] = "Owner",      -- Smytak (Admin)
+    ["Moon_Dragon1337"] = "User",    -- Sahbak (Member)
+}
+
+local Player = game:GetService("Players").LocalPlayer
+
+-- Notification Function
+local function Notify(title, text)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = title;
+        Text = text;
+        Duration = 5;
+    })
+end
+
+-- Check Permission
+local userRole = AllowedUsers[Player.Name]
+
+if not userRole then
+    Notify("❌ ACCESS DENIED", "Sifet l-Username dyalk l-Admin!")
+    task.wait(0.5)
+    Player:Kick("❌ Permission Denied! User: " .. Player.Name)
+    return
+end
+
+-- Welcome Notification
+Notify("✅ ALPHA SCRIPT LOADED", "Welcome back, " .. Player.Name .. " [" .. userRole .. "]")
+
+-- ===== Services =====
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Camera = workspace.CurrentCamera
+
+-- ===== Whitelist & Settings =====
+_G.Whitelist = {} 
+_G.WeaponEspActive = true
+local AimbotOn = true
+local FOVRadius = 100
+local AimPart = "Head"
+local SuperJumpEnabled = false
+local espEnabled = true
+local FreecamEnabled = false
+local FreecamSpeed = 1.5
+local MaxDistance = 3000 
+
+-- ===== ScreenGui =====
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "Hermano_Final_Updated"
+ScreenGui.IgnoreGuiInset = true
+
+-- ===== MainFrame =====
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 380, 0, 580)
+MainFrame.Position = UDim2.new(0.3, 0, 0.1, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+MainFrame.Visible = false
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 15)
+
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(255, 60, 60)
+MainStroke.Thickness = 2
+
+-- ===== FOV Circle =====
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Thickness = 1.5
+FOVCircle.Color = Color3.fromRGB(255, 60, 60)
+FOVCircle.Transparency = 0.5
+FOVCircle.Filled = false
+
+-- ===== Database Asliha =====
+local knownWeapons = {
+    ["802354"] = {Name = "AK-47", Tag = "[LEGENDARY]", Color = Color3.fromRGB(255, 215, 0)},
+    ["26737"]  = {Name = "Glock", Tag = "[UNCOMMON]", Color = Color3.fromRGB(0, 160, 255)},
+    ["194619"] = {Name = "Machete", Tag = "[RARE]", Color = Color3.fromRGB(255, 50, 50)}
+}
+
+-- ===== Functions Helper =====
+local function IsVisible(part)
+    local char = Player.Character
+    if not char then return false end
+    local origin = Camera.CFrame.Position
+    local rayParams = RaycastParams.new()
+    rayParams.FilterDescendantsInstances = {char, part.Parent}
+    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local result = workspace:Raycast(origin, part.Position - origin, rayParams)
+    return result == nil
+end
+
+local function getCleanWeapon(char)
+    local tool = char:FindFirstChildOfClass("Tool")
+    if not tool then return "Fists", Color3.new(1,1,1), "" end
+    local raw = tool.Name
+    if knownWeapons[raw] then
+        local w = knownWeapons[raw]
+        return w.Name, w.Color, w.Tag.." "
+    elseif tonumber(raw) then
+        return "Weapon", Color3.new(1,1,1), "[COMMON] "
+    end
+    return raw, Color3.new(1,1,1), ""
+end
+
+local function GetClosestPlayer()
+    local closest, minDist = nil, FOVRadius
+    for _, plr in Players:GetPlayers() do
+        if plr ~= Player and not table.find(_G.Whitelist, plr.Name) and plr.Character and plr.Character:FindFirstChild(AimPart) and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local charDist = (Player.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+            if charDist <= MaxDistance then
+                local part = plr.Character[AimPart]
+                local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen and IsVisible(part) then
+                    local dist = (Vector2.new(pos.X, pos.Y) - (Camera.ViewportSize/2)).Magnitude
+                    if dist < minDist then
+                        minDist = dist
+                        closest = plr
+                    end
+                end
+            end
+        end
+    end
+    return closest
+end
+
+-- ===== Main Loop =====
+RunService.RenderStepped:Connect(function()
+    FOVCircle.Position = Camera.ViewportSize/2
+    FOVCircle.Radius = FOVRadius
+    FOVCircle.Visible = AimbotOn and not FreecamEnabled
+
+    if AimbotOn and not FreecamEnabled then
+        local target = GetClosestPlayer()
+        if target then
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character[AimPart].Position)
+        end
+    end
+
+    if FreecamEnabled then
+        Camera.CameraType = Enum.CameraType.Scriptable
+        local moveDir = Vector3.new()
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir += Camera.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir -= Camera.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir -= Camera.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir += Camera.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir += Vector3.new(0,1,0) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir -= Vector3.new(0,1,0) end
+        Camera.CFrame = Camera.CFrame + (moveDir * FreecamSpeed)
+    end
+
+    -- ESP & Chams (Up to 3000m)
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= Player and p.Character and p.Character:FindFirstChild("Head") and p.Character:FindFirstChild("HumanoidRootPart") then
+            local char = p.Character
+            local head = char.Head
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local hrp = char.HumanoidRootPart
+            local gui = head:FindFirstChild("WeaponESP")
+            local chams = char:FindFirstChild("AlphaChams")
+            
+            local dist = math.floor((Player.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
+            
+            if espEnabled and hum and hum.Health > 0 and dist <= MaxDistance then
+                -- 1. Text ESP
+                if not gui then
+                    gui = Instance.new("BillboardGui", head)
+                    gui.Name = "WeaponESP"
+                    gui.AlwaysOnTop = true
+                    gui.Size = UDim2.new(0, 150, 0, 70)
+                    gui.StudsOffset = Vector3.new(0, 4, 0)
+                    local l = Instance.new("TextLabel", gui)
+                    l.Size = UDim2.new(1, 0, 1, 0)
+                    l.BackgroundTransparency = 1
+                    l.TextSize = 13
+                    l.Font = Enum.Font.GothamBold
+                    l.TextStrokeTransparency = 0
+                    l.RichText = true
+                end
+                
+                local wName, wCol, wTag = getCleanWeapon(char)
+                local hp = math.floor(hum.Health)
+                local hpColor = hp > 50 and "rgb(0,255,0)" or "rgb(255,0,0)"
+                gui.TextLabel.TextColor3 = wCol
+                gui.TextLabel.Text = string.format("<font color='%s'>HP: %d</font> | <font color='rgb(255,255,255)'>%dm</font>\n<b>%s</b>\n%s%s", hpColor, hp, dist, p.Name, wTag, wName)
+
+                -- 2. Chams (Highlight Abyad)
+                if not chams then
+                    chams = Instance.new("Highlight")
+                    chams.Name = "AlphaChams"
+                    chams.Parent = char
+                    chams.FillColor = Color3.new(1, 1, 1) -- Abyad
+                    chams.FillTransparency = 0.5
+                    chams.OutlineColor = Color3.new(1, 1, 1)
+                    chams.OutlineTransparency = 0
+                    chams.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+					end
+				else
+					if gui then gui:Destroy() end
+					if chams then chams:Destroy() end
+				end
+			end
+		end
+	end)
+
+	-- ===== UI Creation & Controls =====
+	local function createBtn(txt, pos, parent)
+		local b = Instance.new("TextButton", parent)
+		b.Size = UDim2.new(0.85, 0, 0.08, 0)
+		b.Position = pos
+		b.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+		b.Text = txt
+		b.TextColor3 = Color3.new(1,1,1)
+		b.Font = Enum.Font.GothamBold
+		b.TextSize = 15
+		Instance.new("UICorner", b)
+		return b
+	end
+
+	local AimBtn = createBtn("🔫 AIMBOT: ON", UDim2.new(0.07, 0, 0.03, 0), MainFrame)
+	local EspBtn = createBtn("👁️ ESP: ON", UDim2.new(0.07, 0, 0.12, 0), MainFrame)
+	local JumpBtn = createBtn("🦘 SUPER JUMP: OFF", UDim2.new(0.07, 0, 0.21, 0), MainFrame)
+	local FreeBtn = createBtn("🎥 FREECAM: OFF", UDim2.new(0.07, 0, 0.30, 0), MainFrame)
+
+	local FOVBox = Instance.new("TextBox", MainFrame)
+	FOVBox.Size = UDim2.new(0.85, 0, 0.08, 0)
+	FOVBox.Position = UDim2.new(0.07, 0, 0.39, 0)
+	FOVBox.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
+	FOVBox.Text = "FOV: " .. FOVRadius
+	FOVBox.TextColor3 = Color3.new(1,1,1)
+	FOVBox.Font = Enum.Font.GothamBold
+	FOVBox.TextSize = 15
+	Instance.new("UICorner", FOVBox)
+
+	FOVBox.FocusLost:Connect(function()
+		local n = tonumber(FOVBox.Text:match("%d+"))
+		if n then FOVRadius = n FOVBox.Text = "FOV: " .. n end
+	end)
+
+	AimBtn.MouseButton1Click:Connect(function() AimbotOn = not AimbotOn AimBtn.Text = "🔫 AIMBOT: " .. (AimbotOn and "ON" or "OFF") end)
+	EspBtn.MouseButton1Click:Connect(function() espEnabled = not espEnabled EspBtn.Text = "👁️ ESP: " .. (espEnabled and "ON" or "OFF") end)
+	JumpBtn.MouseButton1Click:Connect(function() SuperJumpEnabled = not SuperJumpEnabled JumpBtn.Text = "🦘 SUPER JUMP: " .. (SuperJumpEnabled and "ON" or "OFF") end)
+	FreeBtn.MouseButton1Click:Connect(function() FreecamEnabled = not FreecamEnabled FreeBtn.Text = "🎥 FREECAM: " .. (FreecamEnabled and "ON" or "OFF") if not FreecamEnabled then Camera.CameraType = Enum.CameraType.Custom end end)
+
+	local WLFrame = Instance.new("ScrollingFrame", MainFrame)
+	WLFrame.Size = UDim2.new(0.85, 0, 0.4, 0)
+	WLFrame.Position = UDim2.new(0.07, 0, 0.50, 0)
+	WLFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+	WLFrame.BorderSizePixel = 0
+	Instance.new("UIListLayout", WLFrame)
+
+	local function updateWL()
+		for _, c in pairs(WLFrame:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+		for _, p in pairs(Players:GetPlayers()) do
+			if p ~= Player then
+				local b = Instance.new("TextButton", WLFrame)
+				b.Size = UDim2.new(1, 0, 0, 30)
+				b.Text = p.Name
+				local wl = table.find(_G.Whitelist, p.Name)
+				b.BackgroundColor3 = wl and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(40, 40, 50)
+				b.TextColor3 = Color3.new(1,1,1)
+				b.MouseButton1Click:Connect(function()
+					local idx = table.find(_G.Whitelist, p.Name)
+					if idx then table.remove(_G.Whitelist, idx) else table.insert(_G.Whitelist, p.Name) end
+					updateWL()
+				end)
+			end
+		end
+	end
+
+	local Toggle = Instance.new("TextButton", ScreenGui)
+	Toggle.Size = UDim2.new(0, 100, 0, 40)
+	Toggle.Position = UDim2.new(0.9, 0, 0.05, 0)
+	Toggle.Text = "OPEN"
+	Toggle.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+	Toggle.TextColor3 = Color3.new(1,1,1)
+	Instance.new("UICorner", Toggle)
+
+	Toggle.MouseButton1Click:Connect(function()
+		MainFrame.Visible = not MainFrame.Visible
+		Toggle.Text = MainFrame.Visible and "CLOSE" or "OPEN"
+		if MainFrame.Visible then updateWL() end
+	end)
