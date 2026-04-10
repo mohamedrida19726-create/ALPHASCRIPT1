@@ -1,7 +1,7 @@
 -- ===== Security: Whitelist System =====
 local AllowedUsers = {
     ["GhostJelly39"] = "Owner",      -- Smytak (Admin)
-    ["ACHRAF_4854"] = "User",    -- Sahbak (Member)
+    ["degCHAWIX_7GAR"] = "User",    -- Sahbak (Member)
 }
 
 local Player = game:GetService("Players").LocalPlayer
@@ -194,90 +194,90 @@ RunService.RenderStepped:Connect(function()
                     chams.OutlineColor = Color3.new(1, 1, 1)
                     chams.OutlineTransparency = 0
                     chams.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-					end
-				else
-					if gui then gui:Destroy() end
-					if chams then chams:Destroy() end
-				end
-			end
-		end
-	end)
+                end
+            else
+                if gui then gui:Destroy() end
+                if chams then chams:Destroy() end
+            end
+        end
+    end
+end)
 
-	-- ===== UI Creation & Controls =====
-	local function createBtn(txt, pos, parent)
-		local b = Instance.new("TextButton", parent)
-		b.Size = UDim2.new(0.85, 0, 0.08, 0)
-		b.Position = pos
-		b.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-		b.Text = txt
-		b.TextColor3 = Color3.new(1,1,1)
-		b.Font = Enum.Font.GothamBold
-		b.TextSize = 15
-		Instance.new("UICorner", b)
-		return b
-	end
+-- ===== UI Creation & Controls =====
+local function createBtn(txt, pos, parent)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(0.85, 0, 0.08, 0)
+    b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    b.Text = txt
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 15
+    Instance.new("UICorner", b)
+    return b
+end
 
-	local AimBtn = createBtn("🔫 AIMBOT: ON", UDim2.new(0.07, 0, 0.03, 0), MainFrame)
-	local EspBtn = createBtn("👁️ ESP: ON", UDim2.new(0.07, 0, 0.12, 0), MainFrame)
-	local JumpBtn = createBtn("🦘 SUPER JUMP: OFF", UDim2.new(0.07, 0, 0.21, 0), MainFrame)
-	local FreeBtn = createBtn("🎥 FREECAM: OFF", UDim2.new(0.07, 0, 0.30, 0), MainFrame)
+local AimBtn = createBtn("🔫 AIMBOT: ON", UDim2.new(0.07, 0, 0.03, 0), MainFrame)
+local EspBtn = createBtn("👁️ ESP: ON", UDim2.new(0.07, 0, 0.12, 0), MainFrame)
+local JumpBtn = createBtn("🦘 SUPER JUMP: OFF", UDim2.new(0.07, 0, 0.21, 0), MainFrame)
+local FreeBtn = createBtn("🎥 FREECAM: OFF", UDim2.new(0.07, 0, 0.30, 0), MainFrame)
 
-	local FOVBox = Instance.new("TextBox", MainFrame)
-	FOVBox.Size = UDim2.new(0.85, 0, 0.08, 0)
-	FOVBox.Position = UDim2.new(0.07, 0, 0.39, 0)
-	FOVBox.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
-	FOVBox.Text = "FOV: " .. FOVRadius
-	FOVBox.TextColor3 = Color3.new(1,1,1)
-	FOVBox.Font = Enum.Font.GothamBold
-	FOVBox.TextSize = 15
-	Instance.new("UICorner", FOVBox)
+local FOVBox = Instance.new("TextBox", MainFrame)
+FOVBox.Size = UDim2.new(0.85, 0, 0.08, 0)
+FOVBox.Position = UDim2.new(0.07, 0, 0.39, 0)
+FOVBox.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
+FOVBox.Text = "FOV: " .. FOVRadius
+FOVBox.TextColor3 = Color3.new(1,1,1)
+FOVBox.Font = Enum.Font.GothamBold
+FOVBox.TextSize = 15
+Instance.new("UICorner", FOVBox)
 
-	FOVBox.FocusLost:Connect(function()
-		local n = tonumber(FOVBox.Text:match("%d+"))
-		if n then FOVRadius = n FOVBox.Text = "FOV: " .. n end
-	end)
+FOVBox.FocusLost:Connect(function()
+    local n = tonumber(FOVBox.Text:match("%d+"))
+    if n then FOVRadius = n FOVBox.Text = "FOV: " .. n end
+end)
 
-	AimBtn.MouseButton1Click:Connect(function() AimbotOn = not AimbotOn AimBtn.Text = "🔫 AIMBOT: " .. (AimbotOn and "ON" or "OFF") end)
-	EspBtn.MouseButton1Click:Connect(function() espEnabled = not espEnabled EspBtn.Text = "👁️ ESP: " .. (espEnabled and "ON" or "OFF") end)
-	JumpBtn.MouseButton1Click:Connect(function() SuperJumpEnabled = not SuperJumpEnabled JumpBtn.Text = "🦘 SUPER JUMP: " .. (SuperJumpEnabled and "ON" or "OFF") end)
-	FreeBtn.MouseButton1Click:Connect(function() FreecamEnabled = not FreecamEnabled FreeBtn.Text = "🎥 FREECAM: " .. (FreecamEnabled and "ON" or "OFF") if not FreecamEnabled then Camera.CameraType = Enum.CameraType.Custom end end)
+AimBtn.MouseButton1Click:Connect(function() AimbotOn = not AimbotOn AimBtn.Text = "🔫 AIMBOT: " .. (AimbotOn and "ON" or "OFF") end)
+EspBtn.MouseButton1Click:Connect(function() espEnabled = not espEnabled EspBtn.Text = "👁️ ESP: " .. (espEnabled and "ON" or "OFF") end)
+JumpBtn.MouseButton1Click:Connect(function() SuperJumpEnabled = not SuperJumpEnabled JumpBtn.Text = "🦘 SUPER JUMP: " .. (SuperJumpEnabled and "ON" or "OFF") end)
+FreeBtn.MouseButton1Click:Connect(function() FreecamEnabled = not FreecamEnabled FreeBtn.Text = "🎥 FREECAM: " .. (FreecamEnabled and "ON" or "OFF") if not FreecamEnabled then Camera.CameraType = Enum.CameraType.Custom end end)
 
-	local WLFrame = Instance.new("ScrollingFrame", MainFrame)
-	WLFrame.Size = UDim2.new(0.85, 0, 0.4, 0)
-	WLFrame.Position = UDim2.new(0.07, 0, 0.50, 0)
-	WLFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-	WLFrame.BorderSizePixel = 0
-	Instance.new("UIListLayout", WLFrame)
+local WLFrame = Instance.new("ScrollingFrame", MainFrame)
+WLFrame.Size = UDim2.new(0.85, 0, 0.4, 0)
+WLFrame.Position = UDim2.new(0.07, 0, 0.50, 0)
+WLFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+WLFrame.BorderSizePixel = 0
+Instance.new("UIListLayout", WLFrame)
 
-	local function updateWL()
-		for _, c in pairs(WLFrame:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
-		for _, p in pairs(Players:GetPlayers()) do
-			if p ~= Player then
-				local b = Instance.new("TextButton", WLFrame)
-				b.Size = UDim2.new(1, 0, 0, 30)
-				b.Text = p.Name
-				local wl = table.find(_G.Whitelist, p.Name)
-				b.BackgroundColor3 = wl and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(40, 40, 50)
-				b.TextColor3 = Color3.new(1,1,1)
-				b.MouseButton1Click:Connect(function()
-					local idx = table.find(_G.Whitelist, p.Name)
-					if idx then table.remove(_G.Whitelist, idx) else table.insert(_G.Whitelist, p.Name) end
-					updateWL()
-				end)
-			end
-		end
-	end
+local function updateWL()
+    for _, c in pairs(WLFrame:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= Player then
+            local b = Instance.new("TextButton", WLFrame)
+            b.Size = UDim2.new(1, 0, 0, 30)
+            b.Text = p.Name
+            local wl = table.find(_G.Whitelist, p.Name)
+            b.BackgroundColor3 = wl and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(40, 40, 50)
+            b.TextColor3 = Color3.new(1,1,1)
+            b.MouseButton1Click:Connect(function()
+                local idx = table.find(_G.Whitelist, p.Name)
+                if idx then table.remove(_G.Whitelist, idx) else table.insert(_G.Whitelist, p.Name) end
+                updateWL()
+            end)
+        end
+    end
+end
 
-	local Toggle = Instance.new("TextButton", ScreenGui)
-	Toggle.Size = UDim2.new(0, 100, 0, 40)
-	Toggle.Position = UDim2.new(0.9, 0, 0.05, 0)
-	Toggle.Text = "OPEN"
-	Toggle.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-	Toggle.TextColor3 = Color3.new(1,1,1)
-	Instance.new("UICorner", Toggle)
+local Toggle = Instance.new("TextButton", ScreenGui)
+Toggle.Size = UDim2.new(0, 100, 0, 40)
+Toggle.Position = UDim2.new(0.9, 0, 0.05, 0)
+Toggle.Text = "OPEN"
+Toggle.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+Toggle.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", Toggle)
 
-	Toggle.MouseButton1Click:Connect(function()
-		MainFrame.Visible = not MainFrame.Visible
-		Toggle.Text = MainFrame.Visible and "CLOSE" or "OPEN"
-		if MainFrame.Visible then updateWL() end
-	end)
+Toggle.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+    Toggle.Text = MainFrame.Visible and "CLOSE" or "OPEN"
+    if MainFrame.Visible then updateWL() end
+end)
